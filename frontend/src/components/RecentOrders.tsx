@@ -1,12 +1,13 @@
+"use client";
+import { useMemo } from "react";
 import { Package, Clock, CheckCircle, XCircle } from "lucide-react";
 
 type RawRow = Record<string, unknown>;
 
 interface RecentOrdersProps {
   orders: RawRow[];
+  limit?: number;
 }
-
-const RECENT_ORDERS_LIMIT = 50;
 
 function formatIDR(n: number) {
   return `Rp ${n.toLocaleString("id-ID")}`;
@@ -28,15 +29,17 @@ function getStatusIcon(status: string) {
   return <Package className="w-4 h-4 mr-1" />;
 }
 
-export function RecentOrders({ orders }: RecentOrdersProps) {
-  const recentOrders = [...orders]
-    .sort((a, b) => {
-      // Replace space with 'T' to ensure cross-browser parsing of "YYYY-MM-DD HH:MM:SS"
-      const dateA = new Date(String(a.order_date || "").replace(" ", "T")).getTime() || 0;
-      const dateB = new Date(String(b.order_date || "").replace(" ", "T")).getTime() || 0;
-      return dateB - dateA;
-    })
-    .slice(0, RECENT_ORDERS_LIMIT);
+export function RecentOrders({ orders, limit = 50 }: RecentOrdersProps) {
+  const recentOrders = useMemo(() => {
+    return [...orders]
+      .sort((a, b) => {
+        // Replace space with 'T' to ensure cross-browser parsing of "YYYY-MM-DD HH:MM:SS"
+        const dateA = new Date(String(a.order_date || "").replace(" ", "T")).getTime() || 0;
+        const dateB = new Date(String(b.order_date || "").replace(" ", "T")).getTime() || 0;
+        return dateB - dateA;
+      })
+      .slice(0, limit);
+  }, [orders, limit]);
 
   if (recentOrders.length === 0) {
     return (
