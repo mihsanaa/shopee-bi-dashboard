@@ -222,6 +222,10 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
         className={`md:hidden fixed inset-0 z-[100] flex flex-col justify-end transition-all duration-300 ${
           isOpen ? "visible" : "invisible pointer-events-none"
         }`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Filter data pesanan"
+        onKeyDown={(e) => e.key === "Escape" && setIsOpen(false)}
       >
         {/* Overlay */}
         <div 
@@ -245,7 +249,7 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
               </h3>
               <button 
                 onClick={() => setIsOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-3 text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
