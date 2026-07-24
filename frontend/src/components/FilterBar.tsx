@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Filter, Calendar, MapPin, Tag, CheckCircle2, RotateCcw, X } from "lucide-react";
 
 interface FilterBarProps {
@@ -21,6 +21,15 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
 
   // Mobile drawer state
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
   
   // Temporary state for mobile batching
   const [tempDateRange, setTempDateRange] = useState(dateRange);
@@ -225,7 +234,6 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Filter data pesanan"
-        onKeyDown={(e) => e.key === "Escape" && setIsOpen(false)}
       >
         {/* Overlay */}
         <div 
