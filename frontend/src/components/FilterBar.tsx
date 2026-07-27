@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Filter, Calendar, MapPin, Tag, CheckCircle2, RotateCcw } from "lucide-react";
+import { Filter, Calendar, MapPin, Tag, CheckCircle2, RotateCcw, Loader2 } from "lucide-react";
 
 interface FilterBarProps {
+  loading?: boolean;
   onFilterChange: (filters: {
     dateRange: string;
     province: string;
@@ -12,7 +13,7 @@ interface FilterBarProps {
   }) => void;
 }
 
-export function FilterBar({ onFilterChange }: FilterBarProps) {
+export function FilterBar({ onFilterChange, loading }: FilterBarProps) {
   const [dateRange, setDateRange] = useState("Jan 2026 - Jul 2026");
   const [province, setProvince] = useState("All");
   const [category, setCategory] = useState("All");
@@ -52,10 +53,12 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
         <div className="flex items-center gap-2 text-gray-800 font-semibold text-sm">
           <Filter className="w-4 h-4 text-blue-600" />
           <span>Global Dashboard Filters</span>
+          {loading && <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />}
         </div>
         <button
           onClick={handleReset}
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 transition-colors"
+          disabled={loading}
+          className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <RotateCcw className="w-3.5 h-3.5" />
           Reset Filters
@@ -72,7 +75,8 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
           <select
             value={dateRange}
             onChange={(e) => handleApply({ dateRange: e.target.value })}
-            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <option value="Jan 2026 - Jul 2026">Jan 2026 - Jul 2026 (Default)</option>
             <option value="Q1 2026">Q1 2026 (Jan - Mar)</option>
@@ -91,7 +95,8 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
           <select
             value={province}
             onChange={(e) => handleApply({ province: e.target.value })}
-            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <option value="All">All Provinces</option>
             <option value="DKI Jakarta">DKI Jakarta</option>
@@ -112,7 +117,8 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
           <select
             value={category}
             onChange={(e) => handleApply({ category: e.target.value })}
-            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <option value="All">All Categories</option>
             <option value="Horeca & Beverage">Horeca & Beverage Ingredients</option>
@@ -131,7 +137,8 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
           <select
             value={status}
             onChange={(e) => handleApply({ status: e.target.value })}
-            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <option value="All">All Statuses (Completed & Active)</option>
             <option value="Completed">Completed / Selesai</option>
