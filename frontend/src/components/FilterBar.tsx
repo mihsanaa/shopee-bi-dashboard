@@ -4,29 +4,40 @@ import { useState } from "react";
 import { Filter, Calendar, MapPin, Tag, CheckCircle2, RotateCcw } from "lucide-react";
 
 interface FilterBarProps {
+  availableCities: string[];
   onFilterChange: (filters: {
     dateRange: string;
     province: string;
+    city: string;
     category: string;
     status: string;
   }) => void;
 }
 
-export function FilterBar({ onFilterChange }: FilterBarProps) {
+export function FilterBar({ availableCities, onFilterChange }: FilterBarProps) {
   const [dateRange, setDateRange] = useState("Jan 2026 - Jul 2026");
   const [province, setProvince] = useState("All");
+  const [city, setCity] = useState("All");
   const [category, setCategory] = useState("All");
   const [status, setStatus] = useState("All");
 
-  const handleApply = (newValues: { dateRange?: string; province?: string; category?: string; status?: string }) => {
+  const handleApply = (newValues: { dateRange?: string; province?: string; city?: string; category?: string; status?: string }) => {
     const updated = {
       dateRange: newValues.dateRange !== undefined ? newValues.dateRange : dateRange,
       province: newValues.province !== undefined ? newValues.province : province,
+      city: newValues.city !== undefined ? newValues.city : city,
       category: newValues.category !== undefined ? newValues.category : category,
       status: newValues.status !== undefined ? newValues.status : status,
     };
+
+    if (newValues.province !== undefined && newValues.province !== province) {
+      updated.city = "All";
+      setCity("All");
+    }
+
     if (newValues.dateRange !== undefined) setDateRange(newValues.dateRange);
     if (newValues.province !== undefined) setProvince(newValues.province);
+    if (newValues.city !== undefined && (newValues.province === undefined || newValues.province === province)) setCity(newValues.city);
     if (newValues.category !== undefined) setCategory(newValues.category);
     if (newValues.status !== undefined) setStatus(newValues.status);
 
@@ -36,11 +47,13 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
   const handleReset = () => {
     setDateRange("Jan 2026 - Jul 2026");
     setProvince("All");
+    setCity("All");
     setCategory("All");
     setStatus("All");
     onFilterChange({
       dateRange: "Jan 2026 - Jul 2026",
       province: "All",
+      city: "All",
       category: "All",
       status: "All",
     });
@@ -62,7 +75,7 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Date Range */}
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
@@ -100,6 +113,26 @@ export function FilterBar({ onFilterChange }: FilterBarProps) {
             <option value="Jawa Tengah">Jawa Tengah</option>
             <option value="Sumatera Utara">Sumatera Utara</option>
             <option value="Banten">Banten</option>
+          </select>
+        </div>
+
+        {/* City */}
+        <div>
+          <label className="block text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
+            <MapPin className="w-3.5 h-3.5 text-gray-400" />
+            City
+          </label>
+          <select
+            value={city}
+            onChange={(e) => handleApply({ city: e.target.value })}
+            className="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="All">All Cities</option>
+            {availableCities.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
           </select>
         </div>
 

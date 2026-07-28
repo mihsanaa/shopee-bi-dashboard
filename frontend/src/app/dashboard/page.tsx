@@ -89,13 +89,14 @@ function getArray(section: Record<string, unknown>, key: string): RawRow[] {
   return Array.isArray(value) ? value as RawRow[] : [];
 }
 
-function buildFilteredAnalytics(analytics: unknown, filters: { dateRange: string; province: string; category: string; status: string }): AnalyticsPayload | null {
+function buildFilteredAnalytics(analytics: unknown, filters: { dateRange: string; province: string; city: string; category: string; status: string }): AnalyticsPayload | null {
   const payload = analytics && typeof analytics === "object" ? analytics as AnalyticsPayload : null;
   if (!payload) return null;
   const rows = (payload.raw_data || []).filter((row) => {
     const productName = String(row.product_name ?? "").toLowerCase();
     return dateInRange(row.order_date, filters.dateRange)
       && (filters.province === "All" || row.province === filters.province)
+      && (filters.city === "All" || row.city === filters.city)
       && (filters.category === "All" || productName.includes(filters.category.toLowerCase()))
       && statusMatches(row.order_status, filters.status);
   });
@@ -162,6 +163,7 @@ export default function DashboardPage() {
   const [filters, setFilters] = useState({
     dateRange: "Jan 2026 - Jul 2026",
     province: "All",
+    city: "All",
     category: "All",
     status: "All",
   });
@@ -194,6 +196,26 @@ export default function DashboardPage() {
     }));
   }, [shipping]);
 
+  const availableCities = useMemo(() => {
+    const payload = analytics && typeof analytics === "object" ? analytics as AnalyticsPayload : null;
+    if (!payload || !payload.raw_data) return [];
+    
+    const citySet = new Set<string>();
+    
+    for (const row of payload.raw_data) {
+      if (filters.province !== "All" && row.province !== filters.province) {
+        continue;
+      }
+      const city = String(row.city || "").trim();
+      if (!city || city.toLowerCase().includes("unknown")) {
+        continue;
+      }
+      citySet.add(city);
+    }
+    
+    return Array.from(citySet).sort((a, b) => a.localeCompare(b));
+  }, [analytics, filters.province]);
+
   const noData = ready && !analytics;
 
   if (noData) {
@@ -209,7 +231,7 @@ export default function DashboardPage() {
   return (
     <div>
       {/* Filter Bar */}
-      <FilterBar onFilterChange={(newFilters) => setFilters(newFilters)} />
+      <FilterBar availableCities={availableCities} onFilterChange={(newFilters) => setFilters(newFilters)} />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
