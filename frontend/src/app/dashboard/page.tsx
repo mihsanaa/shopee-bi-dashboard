@@ -196,25 +196,32 @@ export default function DashboardPage() {
     }));
   }, [shipping]);
 
-  const availableCities = useMemo(() => {
+  const citiesByProvince = useMemo(() => {
     const payload = analytics && typeof analytics === "object" ? analytics as AnalyticsPayload : null;
-    if (!payload || !payload.raw_data) return [];
+    const map: Record<string, Set<string>> = { All: new Set<string>() };
     
-    const citySet = new Set<string>();
+    if (!payload || !payload.raw_data) return { All: [] };
     
     for (const row of payload.raw_data) {
-      if (filters.province !== "All" && row.province !== filters.province) {
+      const p = String(row.province || "Unknown").trim();
+      const c = String(row.city || "").trim();
+      
+      if (!c || c.toLowerCase().includes("unknown")) {
         continue;
       }
-      const city = String(row.city || "").trim();
-      if (!city || city.toLowerCase().includes("unknown")) {
-        continue;
-      }
-      citySet.add(city);
+      
+      if (!map[p]) map[p] = new Set<string>();
+      map[p].add(c);
+      map["All"].add(c);
     }
     
-    return Array.from(citySet).sort((a, b) => a.localeCompare(b));
-  }, [analytics, filters.province]);
+    const result: Record<string, string[]> = {};
+    for (const key in map) {
+      result[key] = Array.from(map[key]).sort((a, b) => a.localeCompare(b));
+    }
+    
+    return result;
+  }, [analytics]);
 
   const noData = ready && !analytics;
 
@@ -231,7 +238,7 @@ export default function DashboardPage() {
   return (
     <div>
       {/* Filter Bar */}
-      <FilterBar availableCities={availableCities} onFilterChange={(newFilters) => setFilters(newFilters)} />
+      <FilterBar citiesByProvince={citiesByProvince} onFilterChange={(newFilters) => setFilters(newFilters)} />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
